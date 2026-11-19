@@ -1,11 +1,11 @@
 package lab.compose
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.window.ComposeViewport
-import kotlinx.browser.document
-
-// Web: o Compose desenha num canvas dentro do <body> da página. `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * M15. Web: o Compose desenha num canvas dentro do <body> da página. Use
+ * `ComposeViewport(document.body!!) { App() }` (androidx.compose.ui.window.ComposeViewport, exige
+ * `@OptIn(ExperimentalComposeUiApi::class)`; `document` vem de kotlinx.browser).
+ * Rode: `./gradlew :composeApp:wasmJsBrowserDevelopmentRun`
+ */
 fun main() {
-    ComposeViewport(document.body!!) { App() }
+    TODO("M15: monte o App() no body da página")
 }

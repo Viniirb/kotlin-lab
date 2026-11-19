@@ -1,19 +1,19 @@
 package lab.exercises
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import lab.shared.Outcome
 import kotlin.system.measureTimeMillis
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-// Remova o @Ignore de uma classe por vez.
+// Estes testes são a "régua" dos módulos. Não os altere: o CI recusa PR que modifica testes existentes.
 
-@Ignore
 class Exercise1FizzBuzzTest {
     @Test
     fun `fizzbuzz de 15`() {
@@ -27,7 +27,6 @@ class Exercise1FizzBuzzTest {
     fun `zero devolve lista vazia`() = assertEquals(emptyList(), fizzBuzz(0))
 }
 
-@Ignore
 class Exercise2FirstNonBlankTest {
     @Test
     fun `pula nulos e brancos`() = assertEquals("ok", firstNonBlank(null, "  ", "ok", "outro"))
@@ -36,16 +35,41 @@ class Exercise2FirstNonBlankTest {
     fun `sem candidato devolve null`() = assertNull(firstNonBlank(null, ""))
 }
 
-@Ignore
 class Exercise3WordFrequencyTest {
     @Test
     fun `conta ignorando caixa e pontuacao`() {
         val result = wordFrequency("Kotlin é bom. kotlin, é? Muito bom! Kotlin")
         assertEquals(listOf("kotlin" to 3, "bom" to 2, "é" to 2, "muito" to 1), result)
     }
+
+    @Test
+    fun `texto vazio`() = assertEquals(emptyList(), wordFrequency("  ...  "))
 }
 
-@Ignore
+class Exercise3bGroupAnagramsTest {
+    @Test
+    fun `agrupa anagramas`() {
+        val words = listOf("listen", "silent", "enlist", "google", "gogole", "cat", "act")
+        val expected = listOf(
+            listOf("act", "cat"),
+            listOf("enlist", "listen", "silent"),
+            listOf("gogole", "google"),
+        )
+        assertEquals(expected, groupAnagrams(words))
+    }
+
+    @Test
+    fun `ignora caixa`() = assertEquals(listOf(listOf("Dog", "god")), groupAnagrams(listOf("god", "Dog")))
+}
+
+class Exercise3cRunningTotalTest {
+    @Test
+    fun `acumula`() = assertEquals(listOf(1, 3, 6, 10), runningTotal(listOf(1, 2, 3, 4)))
+
+    @Test
+    fun `vazio`() = assertEquals(emptyList(), runningTotal(emptyList()))
+}
+
 class Exercise4PerimeterTest {
     @Test
     fun `perimetros`() {
@@ -55,7 +79,6 @@ class Exercise4PerimeterTest {
     }
 }
 
-@Ignore
 class Exercise5ParsePositiveTest {
     @Test
     fun `aceita positivo`() = assertEquals(Outcome.Success(7), parsePositive("7"))
@@ -66,7 +89,6 @@ class Exercise5ParsePositiveTest {
     }
 }
 
-@Ignore
 class Exercise6RetryTest {
     @Test
     fun `sucesso na terceira tentativa`() {
@@ -89,7 +111,6 @@ class Exercise6RetryTest {
     }
 }
 
-@Ignore
 class Exercise7ParallelMapTest {
     @Test
     fun `mantem ordem e roda em paralelo`() = runBlocking {
@@ -103,4 +124,12 @@ class Exercise7ParallelMapTest {
         assertEquals(listOf(10, 20, 30, 40), result)
         assertTrue(elapsed < 500, "levou ${elapsed}ms: deveria rodar em paralelo (~200ms)")
     }
+}
+
+class Exercise7bCountdownTest {
+    @Test
+    fun `conta regressiva`() = runTest { assertEquals(listOf(3, 2, 1), countdown(3).toList()) }
+
+    @Test
+    fun `zero nao emite`() = runTest { assertEquals(emptyList(), countdown(0).toList()) }
 }

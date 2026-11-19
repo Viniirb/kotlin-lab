@@ -1,7 +1,11 @@
 package lab.compose
 
-import androidx.compose.ui.window.ComposeUIViewController
+import platform.UIKit.UIViewController
 
-// iOS: o Swift chama esta função (`MainViewControllerKt.MainViewController()`) e embute o resultado numa tela SwiftUI.
-@Suppress("ktlint:standard:function-naming", "FunctionName")
-fun MainViewController() = ComposeUIViewController { App() }
+/**
+ * M15. iOS: o Swift chama esta função (`MainViewControllerKt.MainViewController()`) e embute o resultado numa tela SwiftUI
+ * (veja iosApp/iosApp/ContentView.swift). Devolva `ComposeUIViewController { App() }`
+ * (import androidx.compose.ui.window.ComposeUIViewController).
+ */
+@Suppress("FunctionName")
+fun MainViewController(): UIViewController = TODO("M15: crie o ComposeUIViewController")

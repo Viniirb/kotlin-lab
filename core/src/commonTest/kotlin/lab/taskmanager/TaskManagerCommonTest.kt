@@ -18,6 +18,7 @@ import lab.taskmanager.infrastructure.InMemoryTaskRepository
 import lab.taskmanager.infrastructure.SequentialIdGenerator
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 // Estes testes ficam em commonTest: rodam em CADA plataforma que o core suporta (aqui, via JVM).
@@ -114,6 +115,22 @@ class UseCaseTest {
     }
 }
 
+class PriorityTest {
+    @Test
+    fun `pesos crescem com a urgencia`() {
+        assertEquals(listOf(1, 2, 3), Priority.entries.map { it.weight })
+    }
+
+    @Test
+    fun `parse ignora caixa e espacos`() {
+        assertEquals(Priority.HIGH, Priority.parse("high"))
+        assertEquals(Priority.MEDIUM, Priority.parse("  Medium "))
+    }
+
+    @Test
+    fun `parse de valor desconhecido devolve null`() = assertNull(Priority.parse("urgente"))
+}
+
 class ContractTest {
     @Test
     fun `dto reflete a tarefa`() {
@@ -122,6 +139,35 @@ class ContractTest {
         assertEquals(TaskDto("t1", "estudar", "HIGH", done = false, createdAt = "2026-01-01T10:00:00Z"), dto)
     }
 
+    @Test
+    fun `dto de tarefa concluida carrega a data`() {
+        val module = TaskModule(clock = fixedClock)
+        val task = module.createTask("a", Priority.LOW).successValue()
+        val done = module.completeTask(task.id).successValue().toDto()
+        assertTrue(done.done)
+        assertEquals("2026-01-01T10:00:00Z", done.completedAt)
+    }
+
+    @Test
+    fun `ida e volta preserva a tarefa`() {
+        val module = TaskModule(clock = fixedClock)
+        val open = module.createTask("a", Priority.LOW).successValue()
+        val done = module.completeTask(module.createTask("b", Priority.HIGH).successValue().id).successValue()
+        assertEquals(open, open.toDto().toTask())
+        assertEquals(done, done.toDto().toTask())
+    }
+
+    @Test
+    fun `dto invalido nao vira tarefa`() {
+        val valid = TaskDto("t1", "x", "LOW", done = false, createdAt = "2026-01-01T10:00:00Z")
+        assertNull(valid.copy(title = " ").toTask())
+        assertNull(valid.copy(priority = "???").toTask())
+        assertNull(valid.copy(createdAt = "ontem").toTask())
+        assertNull(valid.copy(done = true, completedAt = null).toTask())
+    }
+}
+
+class DomainErrorTest {
     @Test
     fun `todo erro de dominio tem codigo e mensagem`() {
         val errors = listOf(

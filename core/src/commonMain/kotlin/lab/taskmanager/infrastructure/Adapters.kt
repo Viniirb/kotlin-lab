@@ -6,31 +6,19 @@ import lab.taskmanager.domain.TaskId
 import lab.taskmanager.domain.TaskRepository
 
 /**
- * CAMADA INFRASTRUCTURE: adaptadores concretos das portas. Trocar por um banco de verdade = escrever
- * outra implementação de `TaskRepository`; domínio e casos de uso não mudam uma linha (OCP).
- *
- * Código comum (multiplataforma) não tem `ConcurrentHashMap` nem `AtomicInteger`: esses são do Java.
- * Aqui usamos só a stdlib do Kotlin, SEM garantia de thread-safety. Quem precisa de concorrência
- * (o backend) embrulha o repositório (ver `LockedTaskRepository` no módulo :backend).
+ * CAMADA INFRASTRUCTURE (Módulo 07): adaptadores concretos das portas.
+ * Código comum não tem `ConcurrentHashMap` nem `AtomicInteger` (são do Java): use só a stdlib do Kotlin.
  */
 class InMemoryTaskRepository : TaskRepository {
-    private val store = LinkedHashMap<TaskId, Task>()
+    // M07. Guarde as tarefas num mapa por TaskId (ex.: LinkedHashMap) e implemente os três métodos.
+    override fun save(task: Task): Unit = TODO("M07: guarde a tarefa")
 
-    override fun save(task: Task) {
-        store[task.id] = task
-    }
+    override fun findById(id: TaskId): Task? = TODO("M07: busque por id")
 
-    override fun findById(id: TaskId): Task? = store[id]
-
-    override fun findAll(): List<Task> = store.values.toList()
+    override fun findAll(): List<Task> = TODO("M07: devolva todas")
 }
 
-/** Ids curtos e legíveis para digitar no terminal: t1, t2, t3... */
+/** M07. Ids curtos e legíveis para digitar no terminal: "t1", "t2", "t3"... (um contador interno). */
 class SequentialIdGenerator : IdGenerator {
-    private var counter = 0
-
-    override fun next(): TaskId {
-        counter += 1
-        return TaskId("t$counter")
-    }
+    override fun next(): TaskId = TODO("M07: gere t1, t2, t3...")
 }

@@ -1,78 +1,23 @@
 package lab.backend
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import lab.shared.fold
-import lab.taskmanager.CreateTaskRequest
-import lab.taskmanager.ErrorResponse
 import lab.taskmanager.TaskModule
-import lab.taskmanager.application.TaskFilter
-import lab.taskmanager.code
-import lab.taskmanager.domain.DomainError
-import lab.taskmanager.domain.Priority
-import lab.taskmanager.domain.TaskId
-import lab.taskmanager.toDto
-import lab.taskmanager.userMessage
 
 /**
- * CAMADA DE APRESENTAÇÃO do backend: traduz HTTP <-> casos de uso. Sem regra de negócio aqui.
+ * M12. Camada de apresentação do backend: traduz HTTP para casos de uso. SEM regra de negócio aqui.
  *
- *   GET  /health
- *   GET  /tasks?filter=all|open|done
- *   POST /tasks            {"title": "...", "priority": "HIGH"}
- *   POST /tasks/{id}/done
+ *   GET  /health               -> 200 {"status":"ok"}
+ *   GET  /tasks?filter=...     -> 200 lista de TaskDto; filter: all (padrão) | open | done; outro valor -> 400 "invalid_filter"
+ *   POST /tasks                -> corpo CreateTaskRequest; 201 TaskDto; prioridade inválida -> 400 "invalid_priority"
+ *   POST /tasks/{id}/done      -> 200 TaskDto
+ *
+ * Erro de domínio vira ErrorResponse(code(), userMessage()) com o status certo, decidido por um `when`
+ * EXAUSTIVO sobre DomainError (sem `else`):
+ *   BlankTitle, TitleTooLong -> 400 | TaskNotFound -> 404 | AlreadyCompleted -> 409
+ * Dicas: `route("/tasks") { get { } post { } post("/{id}/done") { } }`, `call.receive<...>()`,
+ * `call.respond(status, body)`, `call.parameters["id"]`, `Outcome.fold`.
+ * O ServerTest é a especificação exata.
  */
 fun Route.taskRoutes(tasks: TaskModule) {
-    get("/health") { call.respond(mapOf("status" to "ok")) }
-
-    route("/tasks") {
-        get {
-            val filter = when (call.request.queryParameters["filter"]?.lowercase()) {
-                null, "all" -> TaskFilter.ALL
-                "open" -> TaskFilter.OPEN
-                "done" -> TaskFilter.DONE
-                else -> return@get call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("invalid_filter", "use all, open ou done"),
-                )
-            }
-            call.respond(tasks.listTasks(filter).map { it.toDto() })
-        }
-
-        post {
-            val body = call.receive<CreateTaskRequest>()
-            val priority = Priority.parse(body.priority)
-                ?: return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("invalid_priority", "use LOW, MEDIUM ou HIGH"),
-                )
-            val result = tasks.createTask(body.title, priority)
-            result.fold(
-                onSuccess = { call.respond(HttpStatusCode.Created, it.toDto()) },
-                onFailure = { call.respond(it.status(), it.toResponse()) },
-            )
-        }
-
-        post("/{id}/done") {
-            val id = TaskId(call.parameters["id"].orEmpty())
-            tasks.completeTask(id).fold(
-                onSuccess = { call.respond(it.toDto()) },
-                onFailure = { call.respond(it.status(), it.toResponse()) },
-            )
-        }
-    }
-}
-
-private fun DomainError.toResponse() = ErrorResponse(code(), userMessage())
-
-// `when` exaustivo: erro de domínio novo exige decidir o status HTTP, senão não compila.
-private fun DomainError.status(): HttpStatusCode = when (this) {
-    DomainError.BlankTitle, is DomainError.TitleTooLong -> HttpStatusCode.BadRequest
-    is DomainError.TaskNotFound -> HttpStatusCode.NotFound
-    is DomainError.AlreadyCompleted -> HttpStatusCode.Conflict
+    TODO("M12: declare as rotas")
 }

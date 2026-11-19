@@ -1,11 +1,9 @@
 package lab.compose
 
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-
-// Desktop: o ponto de entrada é uma janela (Swing/Skia por baixo). `./gradlew :composeApp:run`
-fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "Kotlin Lab - Task Manager") {
-        App()
-    }
+/**
+ * M15. Desktop: o ponto de entrada é uma janela. Use `application { Window(onCloseRequest = ::exitApplication,
+ * title = "...") { App() } }` (imports em androidx.compose.ui.window). Rode: `./gradlew :composeApp:run`
+ */
+fun main() {
+    TODO("M15: abra a janela com App()")
 }

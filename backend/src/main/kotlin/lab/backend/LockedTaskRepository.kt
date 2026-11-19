@@ -5,19 +5,16 @@ import lab.taskmanager.domain.TaskId
 import lab.taskmanager.domain.TaskRepository
 
 /**
- * Netty atende requisições em várias threads, mas o `InMemoryTaskRepository` do :core não é thread-safe.
- * Decorator: embrulha qualquer repositório e serializa o acesso com `synchronized`.
+ * M12. Netty atende requisições em várias threads, mas o `InMemoryTaskRepository` do :core não é thread-safe.
+ * Decorator: embrulha qualquer repositório e serializa o acesso com `synchronized(lock)`.
  *
- * Limitação conhecida (de propósito, para você pensar): cada método é atômico, mas "ler e depois salvar"
- * em dois passos (como `CompleteTask`) ainda pode intercalar. Com banco real, resolva com transação.
- * Desafio: como você tornaria `CompleteTask` atômico?
+ * Limitação para você pensar: cada método é atômico, mas "ler e depois salvar" em dois passos
+ * (como `CompleteTask`) ainda pode intercalar. Como resolver? (Desafio extra do módulo.)
  */
 class LockedTaskRepository(private val delegate: TaskRepository) : TaskRepository {
-    private val lock = Any()
+    override fun save(task: Task): Unit = TODO("M12: sincronize e delegue")
 
-    override fun save(task: Task) = synchronized(lock) { delegate.save(task) }
+    override fun findById(id: TaskId): Task? = TODO("M12: sincronize e delegue")
 
-    override fun findById(id: TaskId): Task? = synchronized(lock) { delegate.findById(id) }
-
-    override fun findAll(): List<Task> = synchronized(lock) { delegate.findAll() }
+    override fun findAll(): List<Task> = TODO("M12: sincronize e delegue")
 }

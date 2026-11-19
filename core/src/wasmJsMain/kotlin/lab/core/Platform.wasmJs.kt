@@ -1,3 +1,4 @@
 package lab.core
 
-actual fun platformName(): String = "Web (Kotlin/Wasm)"
+/** M13. Devolva "Web (Kotlin/Wasm)". */
+actual fun platformName(): String = TODO("M13: nome da plataforma Web")

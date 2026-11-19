@@ -1,0 +1,17 @@
+00|setup|Setup e primeira execução
+01|fundamentos|Fundamentos
+02|colecoes|Coleções e lambdas
+03|classes|Classes, data, enum e value class
+04|sealed|Tipos fechados e when
+05|erros|Erros como valor
+06|funcional|Funcional e extensões
+07|arquitetura|Casos de uso e arquitetura limpa
+08|terminal|Terminal e testes
+09|genericos|Genéricos, delegação e DSL
+10|coroutines|Coroutines e Flow
+11|persistencia|Serialização e persistência
+12|backend|Backend com Ktor
+13|multiplatform|Multiplatform com expect/actual
+14|compose|UI com Compose
+15|plataformas|Cada plataforma: Android, iOS, desktop, web
+16|avancado|Avançado e projeto livre

@@ -1,6 +1,7 @@
 package lab.core
 
-import platform.UIKit.UIDevice
-
-// Kotlin/Native chama APIs do iOS direto: `platform.UIKit` vem do SDK da Apple, sem ponte manual.
-actual fun platformName(): String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+/**
+ * M13. Devolva "<systemName> <systemVersion>" usando `platform.UIKit.UIDevice.currentDevice`.
+ * Kotlin/Native enxerga as APIs da Apple direto, sem ponte manual.
+ */
+actual fun platformName(): String = TODO("M13: nome da plataforma iOS")

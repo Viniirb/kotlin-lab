@@ -3,19 +3,23 @@ package lab.compose
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import lab.shared.fold
 import lab.taskmanager.TaskModule
 import lab.taskmanager.application.TaskFilter
 import lab.taskmanager.domain.Priority
 import lab.taskmanager.domain.Task
 import lab.taskmanager.domain.TaskId
-import lab.taskmanager.userMessage
 
 /**
- * Estado da tela, separado da UI (padrão "state holder"). A UI só LÊ estas propriedades e CHAMA estas funções.
- * Por não depender de widgets, é testável sem emulador (ver TaskStoreTest).
+ * M14. Estado da tela, separado da UI (padrão "state holder"). A UI só LÊ estas propriedades e CHAMA estas funções.
+ * Por não depender de widgets, é testável sem emulador (veja o TaskStoreTest, que é a especificação).
  *
- * `by mutableStateOf`: quando o valor muda, o Compose redesenha só o que o lê (recomposição).
+ * `var x by mutableStateOf(...)`: quando o valor muda, o Compose redesenha só o que o lê (recomposição).
+ *
+ * Comportamento:
+ *  - `tasks`: lista atual, já filtrada por `filter` (inicialmente carregada no `init`)
+ *  - `add`: cria via `module.createTask`; sucesso limpa `error`; falha põe `error = userMessage()`; sempre atualiza a lista
+ *  - `complete`: igual, com `module.completeTask`
+ *  - `select`: troca o filtro e atualiza a lista
  */
 class TaskStore(private val module: TaskModule) {
     var tasks by mutableStateOf<List<Task>>(emptyList())
@@ -25,32 +29,9 @@ class TaskStore(private val module: TaskModule) {
     var error by mutableStateOf<String?>(null)
         private set
 
-    init {
-        refresh()
-    }
+    fun add(title: String, priority: Priority): Unit = TODO("M14: crie a tarefa e atualize o estado")
 
-    fun add(title: String, priority: Priority) {
-        module.createTask(title, priority).fold(
-            onSuccess = { error = null },
-            onFailure = { error = it.userMessage() },
-        )
-        refresh()
-    }
+    fun complete(id: TaskId): Unit = TODO("M14: conclua a tarefa e atualize o estado")
 
-    fun complete(id: TaskId) {
-        module.completeTask(id).fold(
-            onSuccess = { error = null },
-            onFailure = { error = it.userMessage() },
-        )
-        refresh()
-    }
-
-    fun select(filter: TaskFilter) {
-        this.filter = filter
-        refresh()
-    }
-
-    private fun refresh() {
-        tasks = module.listTasks(filter)
-    }
+    fun select(filter: TaskFilter): Unit = TODO("M14: troque o filtro e atualize a lista")
 }

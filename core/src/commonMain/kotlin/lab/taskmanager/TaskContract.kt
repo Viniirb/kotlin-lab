@@ -3,12 +3,11 @@ package lab.taskmanager
 import kotlinx.serialization.Serializable
 import lab.taskmanager.domain.DomainError
 import lab.taskmanager.domain.Task
-import lab.taskmanager.domain.TaskStatus
 
 /**
  * CONTRATO compartilhado. Backend e clientes usam as MESMAS classes: o JSON que o servidor produz é
- * exatamente o que o cliente espera, e mudar um campo quebra a compilação dos dois lados (não em produção).
- * `@Serializable` gera, em tempo de compilação, o código de (de)serialização para todas as plataformas.
+ * exatamente o que o cliente espera. `@Serializable` gera, em compilação, o código de (de)serialização.
+ * As classes já vêm prontas; as conversões são suas (M11), e o tratamento de erros é do M04.
  */
 @Serializable
 data class TaskDto(
@@ -26,27 +25,31 @@ data class CreateTaskRequest(val title: String, val priority: String = "MEDIUM")
 @Serializable
 data class ErrorResponse(val code: String, val message: String)
 
-fun Task.toDto(): TaskDto = TaskDto(
-    id = id.value,
-    title = title.value,
-    priority = priority.name,
-    done = isDone,
-    createdAt = createdAt.toString(),
-    completedAt = (status as? TaskStatus.Done)?.completedAt?.toString(),
-)
+/**
+ * M11. Domínio para DTO. `priority` vira o NOME do enum ("HIGH"); datas viram texto ISO (`Instant.toString()`);
+ * `completedAt` só existe quando a tarefa está concluída.
+ */
+fun Task.toDto(): TaskDto = TODO("M11: converta Task em TaskDto")
 
-/** Código estável (para máquinas) de cada erro de domínio. `when` exaustivo: erro novo exige decisão aqui. */
-fun DomainError.code(): String = when (this) {
-    DomainError.BlankTitle -> "blank_title"
-    is DomainError.TitleTooLong -> "title_too_long"
-    is DomainError.TaskNotFound -> "task_not_found"
-    is DomainError.AlreadyCompleted -> "already_completed"
-}
+/**
+ * M11. Caminho de volta. Devolve `null` se algum campo não passar nas regras do domínio (título inválido,
+ * prioridade desconhecida, data malformada, `done = true` sem `completedAt`).
+ * Dicas: `Title.of`, `Priority.parse`, `Instant.parse` dentro de `runCatching`.
+ */
+fun TaskDto.toTask(): Task? = TODO("M11: converta TaskDto em Task")
 
-/** Mensagem (para humanos) compartilhada por terminal, API e telas. */
-fun DomainError.userMessage(): String = when (this) {
-    DomainError.BlankTitle -> "o título não pode ser vazio"
-    is DomainError.TitleTooLong -> "o título passa de $max caracteres"
-    is DomainError.TaskNotFound -> "não existe tarefa '$id'"
-    is DomainError.AlreadyCompleted -> "a tarefa '$id' já foi concluída"
-}
+/**
+ * M04. Código estável (para máquinas) de cada erro. Um código DIFERENTE por erro, em snake_case:
+ * blank_title, title_too_long, task_not_found, already_completed.
+ * `when` exaustivo, sem `else`: erro novo no domínio exige decisão aqui.
+ */
+fun DomainError.code(): String = TODO("M04: devolva o código")
+
+/**
+ * M04. Mensagem (para humanos), compartilhada por terminal, API e telas. Textos esperados pelo CLI:
+ *  - BlankTitle: "o título não pode ser vazio"
+ *  - TitleTooLong: "o título passa de {max} caracteres"
+ *  - TaskNotFound: "não existe tarefa '{id}'"
+ *  - AlreadyCompleted: "a tarefa '{id}' já foi concluída"
+ */
+fun DomainError.userMessage(): String = TODO("M04: devolva a mensagem")

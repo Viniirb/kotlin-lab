@@ -1,13 +1,7 @@
 package lab.lessons
 
-import lab.shared.Outcome
-import lab.shared.failure
-import lab.shared.flatMap
-import lab.shared.map
-import lab.shared.success
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class LessonsSmokeTest {
     @Test
@@ -17,25 +11,13 @@ class LessonsSmokeTest {
 
     @Test
     fun `todas as licoes executam sem lancar`() {
-        allLessons.forEach { it.run() }
-    }
-}
-
-class OutcomeTest {
-    @Test
-    fun `map transforma so o sucesso`() {
-        assertEquals(Outcome.Success(4), 2.success().map { it * 2 })
-        val failed: Outcome<Int, String> = "ruim".failure()
-        assertEquals(Outcome.Failure("ruim"), failed.map { it * 2 })
-    }
-
-    @Test
-    fun `flatMap para na primeira falha`() {
-        var called = false
-        val result: Outcome<Int, String> = "ruim".failure<String>().flatMap { _: Nothing ->
-            called = true
-            1.success()
+        allLessons.forEach { lesson ->
+            try {
+                lesson.run()
+            } catch (_: NotImplementedError) {
+                // Algumas lições usam o SEU código dos módulos (Outcome, casos de uso). Enquanto o módulo não
+                // estiver pronto, o TODO() dispara e isso é esperado. Qualquer outro erro derruba o teste.
+            }
         }
-        assertTrue(result is Outcome.Failure && !called)
     }
 }
