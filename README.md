@@ -1,3 +1,7 @@
+> **Branch `reference`: solução completa de todos os módulos.**
+> Não leia antes de tentar. O caminho de estudo está na `main` (esqueleto com testes falhando). Aqui tudo passa.
+> Consulte um arquivo só quando travar, e depois refaça de memória.
+
 # kotlin-lab
 
 Laboratório para aprender Kotlin em todas as plataformas: lógica, arquitetura, clean code, backend, Android, iOS,

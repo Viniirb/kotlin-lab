@@ -8,6 +8,7 @@ import lab.taskmanager.domain.Priority
 import lab.taskmanager.domain.Task
 import lab.taskmanager.domain.TaskId
 import lab.taskmanager.domain.TaskRepository
+import lab.taskmanager.domain.sortedByUrgency
 import lab.taskmanager.domain.Title
 import kotlinx.datetime.Clock
 
@@ -59,6 +60,5 @@ class ListTasks(private val repository: TaskRepository) {
                     TaskFilter.DONE -> it.isDone
                 }
             }
-            // Mais urgente primeiro; empate resolve pela ordem de criação.
-            .sortedWith(compareByDescending<Task> { it.priority.weight }.thenBy { it.createdAt })
+            .sortedByUrgency()
 }

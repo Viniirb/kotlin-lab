@@ -1,9 +1,14 @@
 package lab.taskmanager
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import lab.shared.Outcome
 import lab.taskmanager.domain.DomainError
+import lab.taskmanager.domain.Priority
 import lab.taskmanager.domain.Task
+import lab.taskmanager.domain.TaskId
 import lab.taskmanager.domain.TaskStatus
+import lab.taskmanager.domain.Title
 
 /**
  * CONTRATO compartilhado. Backend e clientes usam as MESMAS classes: o JSON que o servidor produz é
@@ -34,6 +39,20 @@ fun Task.toDto(): TaskDto = TaskDto(
     createdAt = createdAt.toString(),
     completedAt = (status as? TaskStatus.Done)?.completedAt?.toString(),
 )
+
+/** Caminho de volta: DTO para domínio. `null` se algum campo não passar nas regras (JSON adulterado, por exemplo). */
+fun TaskDto.toTask(): Task? {
+    val validTitle = (Title.of(title) as? Outcome.Success)?.value ?: return null
+    val validPriority = Priority.parse(priority) ?: return null
+    val created = runCatching { Instant.parse(createdAt) }.getOrNull() ?: return null
+    val status = if (done) {
+        val completed = completedAt?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: return null
+        TaskStatus.Done(completed)
+    } else {
+        TaskStatus.Open
+    }
+    return Task(TaskId(id), validTitle, validPriority, created, status)
+}
 
 /** Código estável (para máquinas) de cada erro de domínio. `when` exaustivo: erro novo exige decisão aqui. */
 fun DomainError.code(): String = when (this) {

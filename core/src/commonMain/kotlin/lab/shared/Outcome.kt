@@ -33,6 +33,18 @@ inline fun <V, E, R> Outcome<V, E>.fold(onSuccess: (V) -> R, onFailure: (E) -> R
     is Outcome.Failure -> onFailure(error)
 }
 
+/** Valor de sucesso, ou o que `onFailure` produzir a partir do erro. */
+inline fun <V, E> Outcome<V, E>.getOrElse(onFailure: (E) -> V): V = when (this) {
+    is Outcome.Success -> value
+    is Outcome.Failure -> onFailure(error)
+}
+
+/** Separa uma lista de resultados em (todos os valores de sucesso, todos os erros), mantendo a ordem. */
+fun <V, E> List<Outcome<V, E>>.split(): Pair<List<V>, List<E>> = Pair(
+    mapNotNull { (it as? Outcome.Success<V>)?.value },
+    mapNotNull { (it as? Outcome.Failure<E>)?.error },
+)
+
 fun <V> V.success(): Outcome<V, Nothing> = Outcome.Success(this)
 
 fun <E> E.failure(): Outcome<Nothing, E> = Outcome.Failure(this)
