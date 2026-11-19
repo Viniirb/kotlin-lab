@@ -5,7 +5,7 @@ roda os testes do módulo; a issue fecha sozinha quando o PR é mesclado.
 
 ## Passo a passo (por módulo)
 
-1. Abra a issue do módulo e leia "Leia antes", "Conceitos" e "Tarefas".
+1. Abra a issue do módulo (a issue #N é o módulo N-1: #1 = módulo 00, #2 = módulo 01, ...) e leia "Leia antes", "Conceitos" e "Tarefas".
 2. Leia a lição indicada (e rode: `./gradlew :lessons:run --args="lesson N"`).
 3. Crie a branch: `git switch -c modulo/NN-nome` (o nome vem na issue; o prefixo `modulo/NN-` é obrigatório).
 4. Implemente no lugar dos `TODO("MNN: ...")`. Cada KDoc explica o comportamento esperado.
