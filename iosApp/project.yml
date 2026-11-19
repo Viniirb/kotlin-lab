@@ -1,0 +1,29 @@
+# Gera o projeto Xcode com XcodeGen (evita versionar o .xcodeproj, que é um arquivo gigante e frágil).
+#   brew install xcodegen && cd iosApp && xcodegen && open iosApp.xcodeproj
+name: iosApp
+options:
+  bundleIdPrefix: lab.kotlinlab
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources: [iosApp]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: lab.kotlinlab.iosApp
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Kotlin Lab
+        # O Gradle gera ComposeApp.framework aqui; o Xcode só precisa achar e linkar.
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: "$(inherited) -framework ComposeApp"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+    # Antes de compilar o Swift, o Gradle compila o Kotlin para a arquitetura certa (simulador ou aparelho).
+    preBuildScripts:
+      - name: Compilar Kotlin (Gradle)
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :composeApp:embedAndSignAppleFrameworkForXcode
