@@ -1,0 +1,94 @@
+name: Validar módulo
+
+# Em PR de uma branch `modulo/NN-nome`: roda a validação do módulo NN (a mesma de `scripts/validate-module.sh NN`).
+# Em push na branch `reference`: valida TODOS os módulos (garante que a solução de referência e os testes batem).
+# Manual (Actions > Run workflow): valida todos os módulos de qualquer branch, como um boletim de progresso.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [reference]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modulos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integridade:
+    name: Integridade dos testes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Testes existentes e automação não podem ser alterados
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Modificar ou apagar um teste já existente, o script de validação ou o workflow é fraude: bloqueia.
+          # Adicionar testes NOVOS é permitido e incentivado.
+          changed=$(git diff --name-status --diff-filter=MDR "$BASE_SHA" "$HEAD_SHA" \
+            | awk '{print $NF}' \
+            | grep -E '(/src/[A-Za-z]*[Tt]est/|^scripts/|^\.github/|^gradle/|build\.gradle\.kts$|settings\.gradle\.kts$|libs\.versions\.toml$)' || true)
+          if [ -n "$changed" ]; then
+            echo "::error::Estes arquivos não podem ser modificados em um PR de módulo:"
+            echo "$changed"
+            exit 1
+          fi
+          echo "Nenhum teste existente ou arquivo de automação foi alterado."
+
+  detectar:
+    name: Detectar módulos
+    runs-on: ubuntu-latest
+    outputs:
+      modulos: ${{ steps.escolher.outputs.modulos }}
+    steps:
+      - id: escolher
+        env:
+          EVENTO: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          todos='["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16"]'
+          if [ "$EVENTO" = "pull_request" ]; then
+            if [[ "$HEAD_REF" =~ ^modulo/([0-9]{2})- ]]; then
+              echo "modulos=[\"${BASH_REMATCH[1]}\"]" >> "$GITHUB_OUTPUT"
+            else
+              echo "::notice::Branch '$HEAD_REF' não segue o padrão modulo/NN-nome; nada a validar."
+              echo "modulos=[]" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "modulos=$todos" >> "$GITHUB_OUTPUT"
+          fi
+
+  validar:
+    name: Validar módulo ${{ matrix.modulo }}
+    needs: detectar
+    if: needs.detectar.outputs.modulos != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        modulo: ${{ fromJSON(needs.detectar.outputs.modulos) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Validar módulo ${{ matrix.modulo }}
+        run: scripts/validate-module.sh "${{ matrix.modulo }}"
+      - name: Resumo
+        if: always()
+        run: |
+          {
+            echo "### Módulo ${{ matrix.modulo }}"
+            echo "Resultado: **${{ job.status }}**"
+          } >> "$GITHUB_STEP_SUMMARY"
