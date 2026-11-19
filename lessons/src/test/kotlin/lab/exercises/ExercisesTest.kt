@@ -133,3 +133,4 @@ class Exercise7bCountdownTest {
     @Test
     fun `zero nao emite`() = runTest { assertEquals(emptyList(), countdown(0).toList()) }
 }
+// alterado
