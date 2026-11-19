@@ -1,90 +1,77 @@
 # kotlin-lab
 
-Laboratório para aprender Kotlin em todas as plataformas: lógica, arquitetura, clean code, backend, Android, iOS,
-desktop e web. Um único núcleo de regras de negócio (`:core`) é reaproveitado por todos os alvos.
+Aprenda Kotlin construindo um produto real, do básico ao avançado, em todas as plataformas:
+terminal, backend, Android, iOS, desktop e web. O **Task Manager** começa incompleto e cresce a cada módulo.
+Você escreve o código; testes automáticos dizem se o módulo está certo.
 
-## Mapa dos módulos
+## Como funciona
 
-| Módulo | Plataforma | O que aprender | Rodar |
-|--------|-----------|----------------|-------|
-| `:core` | KMP (JVM, Android, iOS, Wasm) | Regras de negócio compartilhadas, `expect/actual`, serialização | `./gradlew :core:jvmTest` |
-| `:lessons` | JVM / terminal | 7 lições, 7 exercícios, Task Manager no terminal | `./gradlew :lessons:run --args="lesson 1"` |
-| `:backend` | JVM / servidor | API REST com Ktor, status HTTP, testes de integração | `./gradlew :backend:run` |
-| `:composeApp` | Android | App nativo com Compose | `./gradlew :composeApp:installDebug` |
-| `:composeApp` | Desktop (macOS/Win/Linux) | Janela com Compose | `./gradlew :composeApp:run` |
-| `:composeApp` | Web (Wasm) | Compose no navegador | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` |
-| `iosApp/` | iOS | Compose dentro de SwiftUI | ver `docs/PLATAFORMAS.md` |
+- **17 módulos**, cada um é uma **issue** deste repositório (objetivo, tarefas, critério de pronto).
+- Cada módulo tem **testes que já existem e começam falhando**. Seu trabalho: trocar os `TODO("MNN: ...")` por código até os testes ficarem verdes.
+- Você entrega cada módulo por **branch + PR**. O **GitHub Actions** valida o módulo; a issue fecha ao mesclar.
+- As **lições** (`lessons/`) são a teoria: arquivos comentados que você lê e executa. Cada módulo diz qual ler antes.
+- A solução completa fica na branch **`reference`**. Consulte só depois de tentar.
 
-## Setup (uma vez)
+Detalhes do fluxo: [`docs/FLUXO.md`](docs/FLUXO.md).
 
-1. JDK 17 (o Gradle e o Android exigem). Aponte `JAVA_HOME` para ele: `export JAVA_HOME=$(/usr/libexec/java_home -v 17)`.
-2. Android SDK. O arquivo `local.properties` (não versionado) precisa de `sdk.dir=/caminho/do/sdk`.
-3. iOS: Xcode instalado e `brew install xcodegen`.
+## Trilha
 
-Detalhes e solução de problemas: `docs/PLATAFORMAS.md`.
-
-## Trilha de estudo (siga a ordem)
-
-| Etapa | O que fazer | Onde |
-|-------|-------------|------|
-| 1 | Lições 1 a 3: fundamentos, tipos, funcional | `lessons/.../lessons/Lesson01..03` |
-| 2 | Lições 4 a 6: erros, genéricos/delegação, coroutines | `lessons/.../lessons/Lesson04..06` |
-| 3 | Exercícios 1 a 7 (um por vez, removendo `@Ignore`) | `lessons/.../exercises/` e `ExercisesTest.kt` |
-| 4 | Ler o app em camadas: domain, application, infrastructure | `core/src/commonMain/.../taskmanager/` + `docs/ARQUITETURA.md` |
-| 5 | Clean code e princípios | `docs/CLEAN_CODE.md` |
-| 6 | Lição 7: multiplatform e serialização | `Lesson07Multiplatform.kt` |
-| 7 | Backend: rotas, erros HTTP, testes | `backend/` |
-| 8 | UI declarativa: Compose, state holder, recomposição | `composeApp/src/commonMain/` |
-| 9 | Cada plataforma: ponto de entrada nativo | `androidMain`, `desktopMain`, `iosMain` + `iosApp/`, `wasmJsMain` |
-| 10 | Desafios (abaixo) | em todo o projeto |
-
-### Como estudar cada lição
-
-1. Leia o arquivo inteiro antes de rodar.
-2. Rode e compare a saída com o que previu.
-3. Mude algo (adicione uma variante `sealed`, tire um `?`) e leia o erro do compilador. Erro de compilação é professor.
-4. Só então avance.
-
-### Exercícios
-
-Implemente o `TODO()` em `lessons/.../exercises/Exercises.kt`. Cada classe de `ExercisesTest.kt` começa com `@Ignore`.
-Remova o `@Ignore` de uma classe, rode `./gradlew :lessons:test --tests "*Exercise1*"`, faça passar, passe para a próxima.
-
-### Desafios
-
-Fáceis:
-1. Comando `rename <id> <título>` no terminal: novo caso de uso, método na entidade, erro novo tratado nos 3 lugares
-   (`userMessage`, `code`, `status` HTTP). Repare como o compilador guia você.
-2. Campo `dueDate` opcional, filtro `overdue`. Injete o `Clock` e teste com data fixa.
-
-Médios:
-3. Endpoint `DELETE /tasks/{id}` no backend e botão "excluir" na UI. Mude o domínio uma vez, veja todos os clientes usarem.
-4. Persistência em arquivo: `FileTaskRepository` (JVM) sem alterar domínio nem casos de uso.
-5. Tornar `CompleteTask` atômico no backend (ver o comentário em `LockedTaskRepository`).
-
-Difíceis:
-6. Cliente HTTP no `composeApp` (Ktor Client) para usar o backend em vez do repositório local. Troque só o adaptador.
-7. Persistência multiplataforma com SQLDelight ou Room KMP.
-8. Autenticação JWT no backend e tela de login nos clientes.
-9. Interop: exponha uma função do `:core` para o Swift e chame-a de uma tela SwiftUI nativa (sem Compose).
+| # | Módulo | Nível | Aprende |
+|---|--------|-------|---------|
+| 00 | Setup e primeira execução | Básico | Ambiente, Gradle, fluxo de PR |
+| 01 | Fundamentos | Básico | `val/var`, null safety, `when`, funções |
+| 02 | Coleções e lambdas | Básico | `filter/map/groupBy`, `Sequence` |
+| 03 | Classes, data, enum e value class | Básico | Modelar o domínio |
+| 04 | Tipos fechados e `when` | Básico | `sealed`, exaustividade, imutabilidade |
+| 05 | Erros como valor | Intermediário | `Outcome`, `map/flatMap/fold`, `inline` |
+| 06 | Funcional e extensões | Intermediário | Extensões, ordem superior, `Result` |
+| 07 | Casos de uso e arquitetura limpa | Intermediário | Ports/adapters, SOLID, injeção |
+| 08 | Terminal e testes | Intermediário | Apresentação, testes sem mocks |
+| 09 | Genéricos, delegação e DSL | Intermediário | Variância, `by`, lambda com receptor |
+| 10 | Coroutines e Flow | Intermediário | Concorrência estruturada, `Flow` |
+| 11 | Serialização e persistência | Intermediário | `kotlinx.serialization`, JSON em arquivo |
+| 12 | Backend com Ktor | Avançado | API REST, status HTTP, testes |
+| 13 | Multiplatform com expect/actual | Avançado | Source sets, 4 alvos |
+| 14 | UI com Compose | Avançado | Estado, recomposição, state holder |
+| 15 | Android, iOS, desktop e web | Avançado | Ponto de entrada de cada plataforma |
+| 16 | Avançado e projeto livre | Avançado | Interop, rede, banco, Gradle |
 
 ## Estrutura
 
 ```
 kotlin-lab
-├── core/                      KMP: domínio, casos de uso, contratos (DTO), expect/actual
-│   └── src/{commonMain,commonTest,jvmMain,androidMain,iosMain,wasmJsMain}
-├── lessons/                   JVM: lições, exercícios, Task Manager no terminal
-├── backend/                   JVM: API Ktor (usa o :core)
-├── composeApp/                Compose Multiplatform: Android, Desktop, iOS (framework), Web
-├── iosApp/                    Projeto SwiftUI (gerado com XcodeGen) que hospeda o composeApp
-├── docs/                      ARQUITETURA, CLEAN_CODE, PLATAFORMAS
-└── gradle/libs.versions.toml  versões de TODAS as dependências em um só lugar
+├── core/          KMP: domínio, casos de uso, contrato JSON, expect/actual (módulos 03 a 11, 13)
+├── lessons/       JVM: lições (teoria), exercícios e terminal (módulos 01, 02, 04 a 06, 08, 10)
+├── backend/       JVM: API Ktor (módulo 12)
+├── composeApp/    Compose Multiplatform: Android, desktop, iOS, web (módulos 14 e 15)
+├── iosApp/        Projeto SwiftUI gerado com XcodeGen
+├── scripts/       validate-module.sh, progress.sh
+├── docs/          FLUXO, ARQUITETURA, CLEAN_CODE, PLATAFORMAS, issues/
+└── .github/       Workflow que valida cada módulo
+```
+
+## Comece aqui
+
+1. JDK 17 (`java -version`). Veja `docs/PLATAFORMAS.md` para Android SDK e Xcode.
+2. `./gradlew :lessons:run --args="lesson 1"` (deve imprimir a lição 1).
+3. `scripts/validate-module.sh 00` (deve terminar com ✔).
+4. Abra a issue do **Módulo 00** e siga as tarefas.
+
+## Comandos úteis
+
+```bash
+./gradlew :lessons:run --args="lessons"     # lista as lições
+./gradlew :lessons:run --args="lesson 3"    # roda uma lição
+scripts/validate-module.sh 03               # valida um módulo
+scripts/progress.sh                         # quadro de progresso (todos os módulos)
+./gradlew :lessons:run                      # terminal do Task Manager (após o módulo 08)
+./gradlew :backend:run                      # API (após o módulo 12)
+./gradlew :composeApp:run                   # desktop (após os módulos 14 e 15)
 ```
 
 ## Referências
 
-- Documentação: https://kotlinlang.org/docs/home.html, https://kotlinlang.org/docs/multiplatform.html
+- https://kotlinlang.org/docs/home.html e https://kotlinlang.org/docs/multiplatform.html
 - Compose Multiplatform: https://www.jetbrains.com/help/kotlin-multiplatform-dev/
 - Ktor: https://ktor.io/docs/
 - Livros: "Kotlin in Action" (Jemerov/Isakova), "Effective Kotlin" (Moskała)
